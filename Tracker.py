@@ -13,7 +13,7 @@ class Tracker:
         return os.listdir(self.get_current_advancements_file_path())
 
     def get_advancement_file(self):
-        return self.get_current_advancements_file_path() + "/" + get_advancement_file_string()
+        return self.get_current_advancements_file_path() + "/" + self.get_advancement_file_string()
 
     def get_advancements_file_json(self):
         with open(self.get_advancement_file(), "r") as file:
