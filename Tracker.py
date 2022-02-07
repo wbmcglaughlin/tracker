@@ -29,10 +29,28 @@ class Tracker:
         advancements_completed = []
 
         for section in advancements["sections"]:
-            for adv in advancements[section]["advancements"]:
-                if adv in advancements_file[section]["advancements"]:
-                    if advancements_file[section]["advancements"][adv]["done"]:
-                        advancements_completed.append(adv)
+            for idx, adv in enumerate(advancements[section]["advancements"]):
+                key = "minecraft:" + section + "/" + adv
+                if key in advancements_file:
+                    if advancements_file[key]["done"]:
+                        advancements_completed.append(key)
+
+        return advancements_completed
+
+    def get_progress_advancements(self):
+        advancements = self.get_advancements_list()
+        advancements_file = self.get_advancements_file_json()
+
+        advancements_progress = []
+
+        for section in advancements["sections"]:
+            for idx, adv in enumerate(advancements[section]["advancements"]):
+                key = "minecraft:" + section + "/" + adv
+                if key in advancements_file:
+                    if not advancements_file[key]["done"]:
+                        advancements_progress.append(key)
+
+        return advancements_progress
 
     @staticmethod
     def get_advancement_file_string():

@@ -10,4 +10,5 @@ if __name__ == '__main__':
     saves_file_path = config["saves"]
 
     tracker = Tracker.Tracker(saves_file_path)
-    print(tracker.get_advancements_file_json())
+    print(tracker.get_completed_advancements())
+    print(tracker.get_progress_advancements())
