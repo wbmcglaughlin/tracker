@@ -5,8 +5,6 @@ import json
 class Tracker:
     def __init__(self, saves_file_path: str):
         self.saves_file_path = saves_file_path
-        self.completed_advancements = None
-        self.semi_completed_advancements = None
 
     def get_current_advancements_file_path(self):
         return self.saves_file_path + "/" + os.listdir(self.saves_file_path)[0] + "/advancements"
