@@ -20,6 +20,23 @@ class Tracker:
             advancements = json.load(file)
             return advancements
 
+    def get_completed_advancements(self):
+        advancements = self.get_advancements_list()
+        advancements_file = self.get_advancements_file_json()
+        for section in advancements["sections"]:
+            for adv in advancements[section]:
+                key = "minecraft:" + section + "/" + adv
+                if key in advancements_file:
+                    if advancements_file[key]["done"]:
+                        print(key + " : done")
+                    else:
+                        print(key + " : progress")
+
     @staticmethod
     def get_advancement_file_string():
         return "61d477fb-3c0b-434c-a434-52c9e63fc634.json"
+
+    @staticmethod
+    def get_advancements_list():
+        with open("./advancements.json", "r") as advancements_file:
+            return json.load(advancements_file)

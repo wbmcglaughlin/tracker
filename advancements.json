@@ -1,4 +1,11 @@
 {
+  "sections" : [
+    "story",
+    "nether",
+    "end",
+    "adventure",
+    "husbandry"
+  ],
   "story": [
     "root",
     "mine_stone",
