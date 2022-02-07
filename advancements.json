@@ -1,0 +1,23 @@
+{
+  "story": [
+    "root",
+    "mine_stone",
+    "upgrade_tools",
+    "smelt_iron",
+    "obtain_armour",
+    "lava_bucket",
+    "iron_tools",
+    "deflect_arrow",
+    "form_obsidian",
+    "mine_diamond",
+    "enter_the_nether",
+    "shiny_gear",
+    "enchant_item",
+    "cure_zombie_villager",
+    "follow_ender_eye",
+    "enter_the_end"
+  ],
+  "nether": [
+    
+  ]
+}
