@@ -48,7 +48,12 @@ class Tracker:
                 key = "minecraft:" + section + "/" + adv
                 if key in advancements_file:
                     if not advancements_file[key]["done"]:
-                        advancements_progress.append(key)
+                        todo = list(advancements[section]["progress"][adv])
+                        for criteria_met in advancements_file[key]["criteria"]:
+                            if criteria_met in todo:
+                                todo.remove(criteria_met)
+
+                        advancements_progress.append((key, todo))
 
         return advancements_progress
 
@@ -60,3 +65,4 @@ class Tracker:
     def get_advancements_list():
         with open("./advancements.json", "r") as advancements_file:
             return json.load(advancements_file)
+
