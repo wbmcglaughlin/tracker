@@ -63,6 +63,6 @@ class Tracker:
 
     @staticmethod
     def get_advancements_list():
-        with open("./advancements.json", "r") as advancements_file:
+        with open("./Information/advancements.json", "r") as advancements_file:
             return json.load(advancements_file)
 
