@@ -10,6 +10,8 @@ def export_advancements_to_csv(advancements_list, results):
     df = pd.DataFrame({'advancements': advancements_list,
                        'result': results})
 
+    print(df)
+
     writer = pd.ExcelWriter(path="./advancements.xlsx", engine='xlsxwriter')
 
     df.to_excel(writer, index=False, sheet_name="Advancements")
