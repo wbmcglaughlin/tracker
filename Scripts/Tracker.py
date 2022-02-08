@@ -12,10 +12,39 @@ class AdvancementType(IntEnum):
 
 
 class Tracker:
+    """
+    A class that tracks the advancements for a minecraft world
+
+    ...
+
+    Attributes
+    ----------
+    saves_file_path : str
+        file path where the world saves are located
+    world_name : str
+        world name of current world
+
+    Methods
+    -------
+    start():
+        starts the tracker
+    get_current_advancements_file_path():
+        returns advancements file path of most recent world
+    get_advancements_files():
+        returns a list ofz all player's advancement files
+    get_advancement_file(index: int):
+        returns path to advancement file for given index
+    todo continue listing
+    """
     def __init__(self, saves_file_path: str):
         self.saves_file_path = saves_file_path
+        self.world_name = None
 
     def start(self):
+        """
+
+        :return:
+        """
         window = tkinter.Tk()
         window.geometry("500x500")
         window.resizable(0, 0)
@@ -37,20 +66,43 @@ class Tracker:
         window.mainloop()
 
     def get_current_advancements_file_path(self):
-        return self.saves_file_path + "/" + os.listdir(self.saves_file_path)[0] + "/advancements"
+        """
+
+        :return:
+        """
+        self.world_name = os.listdir(self.saves_file_path)[0]
+        return self.saves_file_path + "/" + self.world_name + "/advancements"
 
     def get_advancements_files(self):
+        """
+
+        :return:
+        """
         return os.listdir(self.get_current_advancements_file_path())
 
     def get_advancement_file(self, index: int):
-        return self.get_current_advancements_file_path() + "/" + self.get_advancements_files[index]
+        """
+
+        :param index:
+        :return:
+        """
+        return self.get_current_advancements_file_path() + "/" + self.get_advancements_files()[index]
 
     def get_advancements_file_json(self, index: int):
+        """
+
+        :param index:
+        :return:
+        """
         with open(self.get_advancement_file(index), "r") as file:
             advancements = json.load(file)
             return advancements
 
     def get_all_advancements(self):
+        """
+
+        :return:
+        """
         advancements = self.get_advancements_list()
         all_advancements = []
 
@@ -62,6 +114,11 @@ class Tracker:
         return all_advancements
 
     def get_completed_advancements(self, index: int):
+        """
+
+        :param index:
+        :return:
+        """
         advancements = self.get_advancements_list()
         advancements_file = self.get_advancements_file_json(index)
         completed_advancements = []
@@ -76,6 +133,11 @@ class Tracker:
         return completed_advancements
 
     def get_progress_advancements(self, index: int):
+        """
+
+        :param index:
+        :return:
+        """
         advancements = self.get_advancements_list()
         advancements_file = self.get_advancements_file_json(index)
         progress_advancements = []
@@ -90,6 +152,11 @@ class Tracker:
         return progress_advancements
 
     def get_progress_advancements_todo(self, index: int):
+        """
+
+        :param index:
+        :return:
+        """
         advancements = self.get_advancements_list()
         advancements_file = self.get_advancements_file_json(index)
         progress_advancements_toto = []
@@ -108,6 +175,11 @@ class Tracker:
         return progress_advancements_toto
 
     def get_uncompleted_advancements(self, index: int):
+        """
+
+        :param index:
+        :return:
+        """
         advancements = self.get_advancements_list()
         advancements_file = self.get_advancements_file_json(index)
         uncompleted_advancements = []
@@ -121,6 +193,11 @@ class Tracker:
         return uncompleted_advancements
 
     def get_advancement_results(self, index: int):
+        """
+
+        :param index:
+        :return:
+        """
         aa = self.get_all_advancements()
         pa = self.get_progress_advancements(index)
         ca = self.get_completed_advancements(index)
@@ -137,10 +214,19 @@ class Tracker:
 
     @staticmethod
     def get_advancements_list():
+        """
+
+        :return:
+        """
         with open("./Information/advancements.json", "r") as advancements_file:
             return json.load(advancements_file)
 
     def export(self, index: int):
+        """
+
+        :param index:
+        :return:
+        """
         aa = self.get_all_advancements()
         res = self.get_advancement_results(index)
 

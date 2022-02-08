@@ -10,6 +10,5 @@ if __name__ == '__main__':
     saves_file_path = config["saves"]
 
     tracker = Tracker(saves_file_path)
-    print(tracker.get_uncompleted_advancements())
 
 
