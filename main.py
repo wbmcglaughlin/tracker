@@ -1,5 +1,6 @@
 import json
 from Scripts.Tracker import Tracker
+from Scripts.Export import export_advancements_to_csv
 
 
 if __name__ == '__main__':
@@ -10,5 +11,9 @@ if __name__ == '__main__':
     saves_file_path = config["saves"]
 
     tracker = Tracker(saves_file_path)
-    print(tracker.get_completed_advancements())
-    print(tracker.get_progress_advancements())
+
+    ua = tracker.get_uncompleted_advancements
+    pa = tracker.get_progress_advancements
+    ca = tracker.get_completed_advancements
+
+    export_advancements_to_csv(ua, pa, ca)
