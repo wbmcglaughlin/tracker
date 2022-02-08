@@ -5,6 +5,7 @@ import json
 class Tracker:
     def __init__(self, saves_file_path: str):
         self.saves_file_path = saves_file_path
+        self.all_advancements = []
         self.completed_advancements = []
         self.progress_advancements = []
         self.progress_advancements_toto = []
@@ -23,6 +24,18 @@ class Tracker:
         with open(self.get_advancement_file(), "r") as file:
             advancements = json.load(file)
             return advancements
+
+    @property
+    def get_all_advancements(self):
+        advancements = self.get_advancements_list()
+        self.all_advancements = []
+
+        for section in advancements["sections"]:
+            for idx, adv in enumerate(advancements[section]["advancements"]):
+                key = "minecraft:" + section + "/" + adv
+                self.all_advancements.append(key)
+
+        return self.all_advancements
 
     @ property
     def get_completed_advancements(self):
