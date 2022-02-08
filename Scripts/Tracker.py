@@ -1,6 +1,14 @@
 import os
 import json
 from Scripts.Export import export_advancements_to_csv
+import tkinter
+from enum import IntEnum
+
+
+class AdvancementType(IntEnum):
+    UNCOMPLETED = 0,
+    PROGRESS = 1,
+    COMPLETED = 2
 
 
 class Tracker:
@@ -11,6 +19,28 @@ class Tracker:
         self.progress_advancements = []
         self.progress_advancements_toto = []
         self.uncompleted_advancements = []
+
+    def start(self):
+        window = tkinter.Tk()
+        window.geometry("500x500")
+        window.resizable(0, 0)
+        window.title("AA Tracker")
+
+        listbox = tkinter.Listbox(window, height=500, width=500, bg="black", font="Helvetica", fg="white")
+
+        results = self.get_advancement_results()
+
+        for idx, advancement in enumerate(self.get_all_advancements):
+            listbox.insert(idx, advancement)
+            if results[idx] == AdvancementType.UNCOMPLETED:
+                listbox.itemconfig(idx, {'bg': '#ab4e37'})
+            elif results[idx] == AdvancementType.PROGRESS:
+                listbox.itemconfig(idx, {'bg': '#adaa3d'})
+            elif results[idx] == AdvancementType.COMPLETED:
+                listbox.itemconfig(idx, {'bg': '#58b038'})
+
+        listbox.pack()
+        window.mainloop()
 
     def get_current_advancements_file_path(self):
         return self.saves_file_path + "/" + os.listdir(self.saves_file_path)[0] + "/advancements"
@@ -38,7 +68,7 @@ class Tracker:
 
         return self.all_advancements
 
-    @ property
+    @property
     def get_completed_advancements(self):
         advancements = self.get_advancements_list()
         advancements_file = self.get_advancements_file_json()
@@ -101,6 +131,21 @@ class Tracker:
 
         return self.uncompleted_advancements
 
+    def get_advancement_results(self):
+        aa = self.get_all_advancements
+        pa = self.get_progress_advancements
+        ca = self.get_completed_advancements
+
+        results = [0] * len(aa)
+
+        for idx, advancement in enumerate(aa):
+            if advancement in pa:
+                results[idx] = int(AdvancementType.PROGRESS)
+            elif advancement in ca:
+                results[idx] = int(AdvancementType.COMPLETED)
+
+        return results
+
     @staticmethod
     def get_advancement_file_string():
         return "61d477fb-3c0b-434c-a434-52c9e63fc634.json"
@@ -112,9 +157,6 @@ class Tracker:
 
     def export(self):
         aa = self.get_all_advancements
-        ua = self.get_uncompleted_advancements
-        pa = self.get_progress_advancements
-        ca = self.get_completed_advancements
+        res = self.get_advancement_results
 
-        export_advancements_to_csv(aa, ua, pa, ca)
-
+        export_advancements_to_csv(aa, res)
