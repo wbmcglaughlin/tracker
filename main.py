@@ -2,6 +2,7 @@ import json
 from Scripts.Tracker import Tracker
 from Scripts.Export import export_advancements_to_csv
 
+# meaningless comment
 
 if __name__ == '__main__':
 
