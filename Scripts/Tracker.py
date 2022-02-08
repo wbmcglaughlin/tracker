@@ -1,5 +1,6 @@
 import os
 import json
+from Scripts.Export import export_advancements_to_csv
 
 
 class Tracker:
@@ -108,4 +109,12 @@ class Tracker:
     def get_advancements_list():
         with open("./Information/advancements.json", "r") as advancements_file:
             return json.load(advancements_file)
+
+    def export(self):
+        aa = self.get_all_advancements
+        ua = self.get_uncompleted_advancements
+        pa = self.get_progress_advancements
+        ca = self.get_completed_advancements
+
+        export_advancements_to_csv(aa, ua, pa, ca)
 
