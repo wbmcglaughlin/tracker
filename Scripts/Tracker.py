@@ -1,8 +1,13 @@
 import os
 import json
+import time
+
+import pandas
+
 from Scripts.Export import export_advancements_to_csv
-import tkinter
+# from Scripts.Sheet import Sheet
 from enum import IntEnum
+import pandas as pd
 
 
 class AdvancementType(IntEnum):
@@ -39,31 +44,50 @@ class Tracker:
     def __init__(self, saves_file_path: str):
         self.saves_file_path = saves_file_path
         self.world_name = None
+        self.sheet = None
+
+        self.is_tracking = False
+        pandas.set_option('display.max_rows', 80)
 
     def start(self):
         """
 
         :return:
         """
-        window = tkinter.Tk()
-        window.geometry("500x500")
-        window.resizable(0, 0)
-        window.title("AA Tracker")
+        self.get_current_advancements_file_path()
+        # self.sheet = Sheet(self.world_name)
 
-        listbox = tkinter.Listbox(window, height=500, bg="black", font="Helvetica", fg="white")
-        results = self.get_advancement_results()
+        self.is_tracking = True
 
-        for idx, advancement in enumerate(self.get_all_advancements()):
-            listbox.insert(idx, advancement.replace("minecraft:", ""))
-            if results[idx] == AdvancementType.UNCOMPLETED:
-                listbox.itemconfig(idx, {'bg': '#ab4e37'})
-            elif results[idx] == AdvancementType.PROGRESS:
-                listbox.itemconfig(idx, {'bg': '#adaa3d'})
-            elif results[idx] == AdvancementType.COMPLETED:
-                listbox.itemconfig(idx, {'bg': '#58b038'})
+        while self.is_tracking:
+            current_results = []
+            for i in range(self.get_player_count()):
+                current_results.append(self.get_advancement_results(i))
 
-        listbox.pack(anchor="nw")
-        window.mainloop()
+            results = []
+            for i in range(len(self.get_all_advancements())):
+                res = []
+                for arr in current_results:
+                    res.append(arr[i])
+                results.append(res)
+
+            adv_status = []
+            for res in results:
+                if AdvancementType.COMPLETED in res:
+                    adv_status.append(AdvancementType.COMPLETED)
+                elif AdvancementType.PROGRESS in res:
+                    adv_status.append(AdvancementType.PROGRESS)
+                else:
+                    adv_status.append(AdvancementType.UNCOMPLETED)
+
+            adv_df = pd.DataFrame({"advancements": self.get_all_advancements(),
+                                   "results": results,
+                                   "status": adv_status})
+
+            progress_adv = []
+
+            print(adv_df.sort_values(by="status"), '\n')
+            self.is_tracking = False
 
     def get_current_advancements_file_path(self):
         """
@@ -79,6 +103,13 @@ class Tracker:
         :return:
         """
         return os.listdir(self.get_current_advancements_file_path())
+
+    def get_player_count(self):
+        """
+
+        :return:
+        """
+        return len(self.get_advancements_files())
 
     def get_advancement_file(self, index: int):
         """
