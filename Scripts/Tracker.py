@@ -86,7 +86,7 @@ class Tracker:
 
             print(adv_df.sort_values(by="status"), '\n')
 
-            # todo create dataframes for progress advancement
+            print(self.get_all_progress_advancements_df())
 
             self.is_tracking = False
 
@@ -95,7 +95,7 @@ class Tracker:
 
         :return:
         """
-        self.world_name = os.listdir(self.saves_file_path)[0]
+        self.world_name = "AA -> Stevo + Pablo + Will"# os.listdir(self.saves_file_path)[0]
         return self.saves_file_path + "/" + self.world_name + "/advancements"
 
     def get_advancements_files(self):
@@ -118,6 +118,7 @@ class Tracker:
         :param index:
         :return:
         """
+
         return self.get_current_advancements_file_path() + "/" + self.get_advancements_files()[index]
 
     def get_advancements_file_json(self, index: int):
@@ -202,7 +203,7 @@ class Tracker:
                         for criteria_met in advancements_file[key]["criteria"]:
                             if criteria_met in todo:
                                 todo.remove(criteria_met)
-                                progress_advancements_toto.append(todo)
+                        progress_advancements_toto.append(todo)
 
         return progress_advancements_toto
 
@@ -261,20 +262,27 @@ class Tracker:
 
         progress_todo_per_player = []
         for i in range(self.get_player_count()):
+
             prog_adv = self.get_progress_advancements(i)
             prog_adv_todo = self.get_progress_advancements_todo(i)
-
+            hold = []
             for idx, prog in enumerate(prog_adv):
-                if prog.split("/", 1)[1] == name:  # todo - better way to do this
-                    progress_todo_per_player.append(prog_adv_todo[idx])
+                if prog.__contains__(name):  # todo - better way to do this
+                    hold = prog_adv_todo[idx]
+
+            progress_todo_per_player.append(hold)
 
         for prog in all_progress:
             res = []
             for i in range(self.get_player_count()):
-                if prog in progress_todo_per_player[i]:
+                if len(progress_todo_per_player[i]) == 0:
                     res.append(0)
                 else:
-                    res.append(1)
+                    if prog in progress_todo_per_player[i]:
+                        res.append(0)
+                    else:
+                        res.append(1)
+
             results.append(res)
 
         df = pandas.DataFrame({'type': all_progress,
@@ -283,7 +291,14 @@ class Tracker:
         return df
 
     def get_all_progress_advancements_df(self):
-        pass
+        advancements = self.get_advancements_list()
+        df = []
+
+        for section in advancements["sections"]:
+            for idx, adv in enumerate(advancements[section]["progress"]):
+                df.append(self.get_progress_advancement_by_name_df(adv))
+
+        return df
 
     @staticmethod
     def get_advancements_list():
