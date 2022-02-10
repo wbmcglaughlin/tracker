@@ -193,14 +193,14 @@
       "fishy_business",
       "silk_touch_nest",
       "plant_seed",
-      "breed_all_animals",
+      "bred_all_animals",
       "complete_catalogue",
       "tactical_fishing",
       "balanced_diet",
       "obtain_netherite_hoe"
     ],
     "progress": {
-      "breed_all_animals": [
+      "bred_all_animals": [
         "minecraft:pig",
         "minecraft:sheep",
         "minecraft:chicken",
