@@ -10,6 +10,6 @@ if __name__ == '__main__':
     saves_file_path = config["saves"]
 
     tracker = Tracker(saves_file_path)
-    tracker.start()
+    print(tracker.get_progress_advancement_by_name_df("kill_all_mobs"))
 
 

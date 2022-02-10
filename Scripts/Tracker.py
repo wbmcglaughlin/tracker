@@ -84,9 +84,10 @@ class Tracker:
                                    "results": results,
                                    "status": adv_status})
 
-            progress_adv = []
-
             print(adv_df.sort_values(by="status"), '\n')
+
+            # todo create dataframes for progress advancement
+
             self.is_tracking = False
 
     def get_current_advancements_file_path(self):
@@ -242,6 +243,47 @@ class Tracker:
                 results[idx] = int(AdvancementType.COMPLETED)
 
         return results
+
+    def get_progress_advancement_by_name(self, name: str):
+        advancements = self.get_advancements_list()
+        progress = None
+
+        for section in advancements["sections"]:
+            for idx, adv in enumerate(advancements[section]["progress"]):
+                if str(adv) == name:
+                    progress = advancements[section]["progress"][adv]
+
+        return progress
+
+    def get_progress_advancement_by_name_df(self, name: str):
+        all_progress = self.get_progress_advancement_by_name(name)
+        results = []
+
+        progress_todo_per_player = []
+        for i in range(self.get_player_count()):
+            prog_adv = self.get_progress_advancements(i)
+            prog_adv_todo = self.get_progress_advancements_todo(i)
+
+            for idx, prog in enumerate(prog_adv):
+                if prog.split("/", 1)[1] == name:  # todo - better way to do this
+                    progress_todo_per_player.append(prog_adv_todo[idx])
+
+        for prog in all_progress:
+            res = []
+            for i in range(self.get_player_count()):
+                if prog in progress_todo_per_player[i]:
+                    res.append(0)
+                else:
+                    res.append(1)
+            results.append(res)
+
+        df = pandas.DataFrame({'type': all_progress,
+                               'results': results})
+
+        return df
+
+    def get_all_progress_advancements_df(self):
+        pass
 
     @staticmethod
     def get_advancements_list():
