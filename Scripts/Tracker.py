@@ -5,7 +5,7 @@ import time
 import pandas
 
 from Scripts.Export import export_advancements_to_csv
-# from Scripts.Sheet import Sheet
+from Scripts.Sheet import Sheet
 from enum import IntEnum
 import pandas as pd
 
@@ -55,7 +55,18 @@ class Tracker:
         :return:
         """
         self.get_current_advancements_file_path()
-        # self.sheet = Sheet(self.world_name)
+
+        # Create and Populate Google Sheet
+        self.sheet = Sheet(self.world_name, 3)
+        self.sheet.create_tracker_sheet(self.get_all_advancements())
+
+         # Add a tab for the 6 'progress' advancements -
+        self.sheet.add_worksheet("Explore Nether", self.get_all_progress_advancements_df(0))
+        self.sheet.add_worksheet("Mobs", self.get_all_progress_advancements_df(1))
+        self.sheet.add_worksheet("Biomes", self.get_all_progress_advancements_df(2))
+        self.sheet.add_worksheet("Breed Animals", self.get_all_progress_advancements_df(3))
+        self.sheet.add_worksheet("Food", self.get_all_progress_advancements_df(4))
+        self.sheet.add_worksheet("Cats", self.get_all_progress_advancements_df(5))
 
         self.is_tracking = True
 
