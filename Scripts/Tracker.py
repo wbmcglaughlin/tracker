@@ -98,6 +98,9 @@ class Tracker:
             print(adv_df.sort_values(by="status"), '\n')
 
             print(self.get_all_progress_advancements_df())
+            
+            # Update the tracker sheet with the new data
+            self.sheet.update_tracker("Sheet1", adv_df)
 
             self.is_tracking = False
 

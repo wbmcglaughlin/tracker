@@ -50,12 +50,10 @@ class Sheet:
         df = pd.DataFrame(dict)
         worksheet.update([df.columns.values.tolist()] + df.values.tolist())
       
-    # TODO: update sheet at the proper tab
-    def update_tracker_sheet(self, row, content):
-        sheet = self.client.open(self.name).worksheet('Explore Nether')
-        sheet.delete_rows(row)
-        sheet.insert_row(content, row)
-
+    def update_tracker(self, tab, data):
+        worksheet = self.client.open(self.name).worksheet(tab)
+        worksheet.update([data.columns.values.tolist()] + data.values.tolist())
+        
     # for testing
     def display_advancements_tab(self):
         sheet = self.client.open(self.name).sheet1
