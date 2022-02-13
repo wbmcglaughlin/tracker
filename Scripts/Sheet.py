@@ -48,7 +48,7 @@ class Sheet:
             ss = self.client.open(self.name)
         # If not, create the sheet
         else:
-            ss = self.client.create(self.name)  # spreadsheet object
+            ss = self.client.create(self.name)
 
         # Tries to invite emails from config.json to google sheet
         try:
