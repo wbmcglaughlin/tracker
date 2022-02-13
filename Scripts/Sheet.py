@@ -87,14 +87,14 @@ class Sheet:
         self.add_formatting(worksheet)
         set_with_dataframe(worksheet, progress_list)
 
-    def update_worksheet(self, index: int, data: pandas.DataFrame):
+    def update_worksheet(self, name: str, data: pandas.DataFrame):
         """
         Updates certain worksheets
-        :param index: worksheet index
+        :param name: worksheet name
         :param data: dataframe to fill the sheet
         :return: None
         """
-        worksheet = self.client.open(self.name).worksheet(index)
+        worksheet = self.client.open(self.name).worksheet(name)
         set_with_dataframe(worksheet, data)
 
     def add_formatting(self, worksheet):

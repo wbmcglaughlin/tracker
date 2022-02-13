@@ -1,4 +1,5 @@
 import os
+import glob
 import json
 import time
 from tqdm import tqdm
@@ -12,6 +13,9 @@ import pandas as pd
 
 
 class AdvancementType(IntEnum):
+    """
+    Advancement status class
+    """
     UNCOMPLETED = 0,
     PROGRESS = 1,
     COMPLETED = 2
@@ -20,39 +24,22 @@ class AdvancementType(IntEnum):
 class Tracker:
     """
     A class that tracks the advancements for a minecraft world
-
-    ...
-
-    Attributes
-    ----------
-    saves_file_path : str
-        file path where the world saves are located
-    world_name : str
-        world name of current world
-
-    Methods
-    -------
-    start():
-        starts the tracker
-    get_current_advancements_file_path():
-        returns advancements file path of most recent world
-    get_advancements_files():
-        returns a list ofz all player's advancement files
-    get_advancement_file(index: int):
-        returns path to advancement file for given index
-    todo continue listing
     """
     def __init__(self, saves_file_path: str):
+        """
+    
+        :param saves_file_path: file path where the world saves are located
+        """
         self.saves_file_path = saves_file_path
         self.world_name = None
         self.sheet = None
+        self.old_ctime = self.get_ctime_list()
 
         self.is_tracking = False
-        pandas.set_option('display.max_rows', 80)
 
     def start(self):
         """
-
+        runs the tracker, waits for file change and then updates
         :return:
         """
         self.get_current_advancements_file_path()
@@ -77,41 +64,49 @@ class Tracker:
             # Update the tracker sheet with the new data
             self.sheet.update_worksheet("Sheet1", adv_df)
 
-            self.sheet.update_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"))
-            self.sheet.update_worksheet("Mobs", self.get_progress_advancement_by_name_df("kill_all_mobs"))
-            self.sheet.update_worksheet("Biomes", self.get_progress_advancement_by_name_df("adventuring_time"))
-            self.sheet.update_worksheet("Breed Animals", self.get_progress_advancement_by_name_df("bred_all_animals"))
-            self.sheet.update_worksheet("Food", self.get_progress_advancement_by_name_df("balanced_diet"))
-            self.sheet.update_worksheet("Cats", self.get_progress_advancement_by_name_df("complete_catalogue"))
+            if self.old_ctime == self.get_ctime_list():
+                for _ in tqdm(range(5)):
+                    time.sleep(1)
+            else:
+                self.sheet.update_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"))
+                self.sheet.update_worksheet("Mobs", self.get_progress_advancement_by_name_df("kill_all_mobs"))
+                self.sheet.update_worksheet("Biomes", self.get_progress_advancement_by_name_df("adventuring_time"))
+                self.sheet.update_worksheet("Breed Animals", self.get_progress_advancement_by_name_df("bred_all_animals"))
+                self.sheet.update_worksheet("Food", self.get_progress_advancement_by_name_df("balanced_diet"))
+                self.sheet.update_worksheet("Cats", self.get_progress_advancement_by_name_df("complete_catalogue"))
 
-            for i in tqdm(range(20)):
-                time.sleep(1)
+                self.old_ctime = self.get_ctime_list()
+
+                for _ in tqdm(range(60)):
+                    time.sleep(1)
 
     def get_current_advancements_file_path(self):
         """
-
+        returns the latest worlds advancements file path
         :return:
         """
-        self.world_name = "AA -> Stevo + Pablo + Will"# os.listdir(self.saves_file_path)[0]
-        return self.saves_file_path + "/" + self.world_name + "/advancements"
+        lst = glob.glob(self.saves_file_path + "/*")
+        world_path = max(lst, key=os.path.getctime)
+        self.world_name = world_path.split("/")[-1]
+        return world_path + "/advancements"
 
     def get_advancements_files(self):
         """
-
+        returns a list of the players advancements files
         :return:
         """
         return os.listdir(self.get_current_advancements_file_path())
 
     def get_player_count(self):
         """
-
+        returns a count of the number of players that have joined the world
         :return:
         """
         return len(self.get_advancements_files())
 
     def get_advancement_file(self, index: int):
         """
-
+        returns player (index)'s advancements
         :param index:
         :return:
         """
@@ -120,7 +115,7 @@ class Tracker:
 
     def get_advancements_file_json(self, index: int):
         """
-
+        returns the advancements file as a json string
         :param index:
         :return:
         """
@@ -130,7 +125,7 @@ class Tracker:
 
     def get_all_advancements(self):
         """
-
+        returns a list of all advancements
         :return:
         """
         advancements = self.get_advancements_list()
@@ -145,7 +140,7 @@ class Tracker:
 
     def get_completed_advancements(self, index: int):
         """
-
+        returns a list of all completed advancements for a player
         :param index:
         :return:
         """
@@ -164,7 +159,7 @@ class Tracker:
 
     def get_progress_advancements(self, index: int):
         """
-
+        returns a list of all progress advancements for a player
         :param index:
         :return:
         """
@@ -183,7 +178,7 @@ class Tracker:
 
     def get_progress_advancements_todo(self, index: int):
         """
-
+        returns a list of what remaining progress advancement conditions need to be fulfilled
         :param index:
         :return:
         """
@@ -206,7 +201,7 @@ class Tracker:
 
     def get_uncompleted_advancements(self, index: int):
         """
-
+        returns a list of all uncompleted advancements (not including progress advancements)
         :param index:
         :return:
         """
@@ -224,7 +219,7 @@ class Tracker:
 
     def get_advancement_results(self, index: int):
         """
-
+        returns a list of advancement results
         :param index:
         :return:
         """
@@ -243,6 +238,10 @@ class Tracker:
         return results
 
     def get_advancement_results_df(self):
+        """
+        returns a dataframe with all results
+        :return:
+        """
         current_results = []
         for i in range(self.get_player_count()):
             current_results.append(self.get_advancement_results(i))
@@ -273,6 +272,11 @@ class Tracker:
         return adv_df
 
     def get_progress_advancement_by_name(self, name: str):
+        """
+        returns a list of a progress advancements requirements
+        :param name:
+        :return:
+        """
         advancements = self.get_advancements_list()
         progress = None
 
@@ -284,6 +288,11 @@ class Tracker:
         return progress
 
     def get_progress_advancement_by_name_df(self, name: str):
+        """
+        returns a dataframe containing a progress advancements results
+        :param name:
+        :return:
+        """
         all_progress = self.get_progress_advancement_by_name(name)
         results = []
 
@@ -320,6 +329,10 @@ class Tracker:
         return df
 
     def get_all_progress_advancements_df(self):
+        """
+        returns a list of dataframes of all progress advancements
+        :return:
+        """
         advancements = self.get_advancements_list()
         df = []
 
@@ -328,6 +341,10 @@ class Tracker:
                 df.append(self.get_progress_advancement_by_name_df(adv))
 
         return df
+
+    def get_ctime_list(self):
+        lst = glob.glob(self.saves_file_path + "/*")
+        return [os.path.getctime(ls) for ls in lst]
 
     @staticmethod
     def get_advancements_list():
