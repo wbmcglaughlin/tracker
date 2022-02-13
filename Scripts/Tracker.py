@@ -1,6 +1,7 @@
 import os
 import json
 import time
+from tqdm import tqdm
 
 import pandas
 
@@ -57,52 +58,34 @@ class Tracker:
         self.get_current_advancements_file_path()
 
         # Create and Populate Google Sheet
-        self.sheet = Sheet(self.world_name, 3)
-        self.sheet.create_tracker_sheet(self.get_all_advancements())
+        self.sheet = Sheet(self.world_name, self.get_player_count())
+        self.sheet.create_tracker_sheet(self.get_advancement_results_df())
 
-         # Add a tab for the 6 'progress' advancements -
-        self.sheet.add_worksheet("Explore Nether", self.get_all_progress_advancements_df(0))
-        self.sheet.add_worksheet("Mobs", self.get_all_progress_advancements_df(1))
-        self.sheet.add_worksheet("Biomes", self.get_all_progress_advancements_df(2))
-        self.sheet.add_worksheet("Breed Animals", self.get_all_progress_advancements_df(3))
-        self.sheet.add_worksheet("Food", self.get_all_progress_advancements_df(4))
-        self.sheet.add_worksheet("Cats", self.get_all_progress_advancements_df(5))
+        # Add a tab for the 6 'progress' advancements -
+        self.sheet.add_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"), 1)
+        self.sheet.add_worksheet("Mobs", self.get_progress_advancement_by_name_df("kill_all_mobs"), 2)
+        self.sheet.add_worksheet("Biomes", self.get_progress_advancement_by_name_df("adventuring_time"), 3)
+        self.sheet.add_worksheet("Breed Animals", self.get_progress_advancement_by_name_df("bred_all_animals"), 4)
+        self.sheet.add_worksheet("Food", self.get_progress_advancement_by_name_df("balanced_diet"), 5)
+        self.sheet.add_worksheet("Cats", self.get_progress_advancement_by_name_df("complete_catalogue"), 6)
 
         self.is_tracking = True
 
         while self.is_tracking:
-            current_results = []
-            for i in range(self.get_player_count()):
-                current_results.append(self.get_advancement_results(i))
+            adv_df = self.get_advancement_results_df()
 
-            results = []
-            for i in range(len(self.get_all_advancements())):
-                res = []
-                for arr in current_results:
-                    res.append(arr[i])
-                results.append(res)
-
-            adv_status = []
-            for res in results:
-                if AdvancementType.COMPLETED in res:
-                    adv_status.append(AdvancementType.COMPLETED)
-                elif AdvancementType.PROGRESS in res:
-                    adv_status.append(AdvancementType.PROGRESS)
-                else:
-                    adv_status.append(AdvancementType.UNCOMPLETED)
-
-            adv_df = pd.DataFrame({"advancements": self.get_all_advancements(),
-                                   "results": results,
-                                   "status": adv_status})
-
-            print(adv_df.sort_values(by="status"), '\n')
-
-            print(self.get_all_progress_advancements_df())
-            
             # Update the tracker sheet with the new data
-            self.sheet.update_tracker("Sheet1", adv_df)
+            self.sheet.update_worksheet("Sheet1", adv_df)
 
-            self.is_tracking = False
+            self.sheet.update_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"))
+            self.sheet.update_worksheet("Mobs", self.get_progress_advancement_by_name_df("kill_all_mobs"))
+            self.sheet.update_worksheet("Biomes", self.get_progress_advancement_by_name_df("adventuring_time"))
+            self.sheet.update_worksheet("Breed Animals", self.get_progress_advancement_by_name_df("bred_all_animals"))
+            self.sheet.update_worksheet("Food", self.get_progress_advancement_by_name_df("balanced_diet"))
+            self.sheet.update_worksheet("Cats", self.get_progress_advancement_by_name_df("complete_catalogue"))
+
+            for i in tqdm(range(20)):
+                time.sleep(1)
 
     def get_current_advancements_file_path(self):
         """
@@ -259,6 +242,36 @@ class Tracker:
 
         return results
 
+    def get_advancement_results_df(self):
+        current_results = []
+        for i in range(self.get_player_count()):
+            current_results.append(self.get_advancement_results(i))
+
+        results = []
+        for i in range(len(self.get_all_advancements())):
+            res = []
+            for arr in current_results:
+                res.append(arr[i])
+            results.append(res)
+
+        adv_status = []
+        for res in results:
+            if AdvancementType.COMPLETED in res:
+                adv_status.append(AdvancementType.COMPLETED)
+            elif AdvancementType.PROGRESS in res:
+                adv_status.append(AdvancementType.PROGRESS)
+            else:
+                adv_status.append(AdvancementType.UNCOMPLETED)
+
+        adv_df = pd.DataFrame({"advancements": self.get_all_advancements()})
+
+        for idx, res in enumerate(current_results):
+            adv_df.insert(idx + 1, f'player: {idx}', res, True)
+
+        adv_df.insert(1 + len(current_results), f'results', adv_status, True)
+
+        return adv_df
+
     def get_progress_advancement_by_name(self, name: str):
         advancements = self.get_advancements_list()
         progress = None
@@ -286,9 +299,9 @@ class Tracker:
 
             progress_todo_per_player.append(hold)
 
-        for prog in all_progress:
+        for i in range(self.get_player_count()):
             res = []
-            for i in range(self.get_player_count()):
+            for prog in all_progress:
                 if len(progress_todo_per_player[i]) == 0:
                     res.append(0)
                 else:
@@ -299,8 +312,10 @@ class Tracker:
 
             results.append(res)
 
-        df = pandas.DataFrame({'type': all_progress,
-                               'results': results})
+        df = pandas.DataFrame({'type': all_progress})
+
+        for idx, res in enumerate(results):
+            df.insert(idx + 1, f'player: {idx}', res, True)
 
         return df
 
