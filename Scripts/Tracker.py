@@ -1,11 +1,9 @@
 import os
 import glob
 import json
-import time
-from tqdm import tqdm
 
+import logging
 import pandas
-from tkinter import *
 from Scripts.Export import export_advancements_to_csv
 from Scripts.Sheet import Sheet
 from enum import IntEnum
@@ -36,12 +34,15 @@ class Tracker:
         self.old_ctime = self.get_ctime_list()
 
         self.is_tracking = False
+        self.logger = logging.getLogger('tracker')
+        self.logger.setLevel(logging.INFO)
 
-    def start(self):
+    def setup(self):
         """
         runs the tracker, waits for file change and then updates
         :return:
         """
+        self.logger.info('Setting up Sheet')
         self.get_current_advancements_file_path()
 
         # Create and Populate Google Sheet
@@ -56,29 +57,29 @@ class Tracker:
         self.sheet.add_worksheet("Food", self.get_progress_advancement_by_name_df("balanced_diet"), 5)
         self.sheet.add_worksheet("Cats", self.get_progress_advancement_by_name_df("complete_catalogue"), 6)
 
-        self.is_tracking = True
+    def run_loop(self):
+        print(f'Running Loop')
+        adv_df = self.get_advancement_results_df()
 
-        while self.is_tracking:
-            adv_df = self.get_advancement_results_df()
+        # Update the tracker sheet with the new data
+        self.sheet.update_worksheet("Sheet1", adv_df)
 
-            # Update the tracker sheet with the new data
-            self.sheet.update_worksheet("Sheet1", adv_df)
+        if self.old_ctime == self.get_ctime_list():
+            return
+        else:
+            self.sheet.update_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"))
+            self.sheet.update_worksheet("Mobs", self.get_progress_advancement_by_name_df("kill_all_mobs"))
+            self.sheet.update_worksheet("Biomes", self.get_progress_advancement_by_name_df("adventuring_time"))
+            self.sheet.update_worksheet("Breed Animals", self.get_progress_advancement_by_name_df("bred_all_animals"))
+            self.sheet.update_worksheet("Food", self.get_progress_advancement_by_name_df("balanced_diet"))
+            self.sheet.update_worksheet("Cats", self.get_progress_advancement_by_name_df("complete_catalogue"))
 
-            if self.old_ctime == self.get_ctime_list():
-                for _ in tqdm(range(20), desc="Waiting For Change"):
-                    time.sleep(1)
-            else:
-                self.sheet.update_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"))
-                self.sheet.update_worksheet("Mobs", self.get_progress_advancement_by_name_df("kill_all_mobs"))
-                self.sheet.update_worksheet("Biomes", self.get_progress_advancement_by_name_df("adventuring_time"))
-                self.sheet.update_worksheet("Breed Animals", self.get_progress_advancement_by_name_df("bred_all_animals"))
-                self.sheet.update_worksheet("Food", self.get_progress_advancement_by_name_df("balanced_diet"))
-                self.sheet.update_worksheet("Cats", self.get_progress_advancement_by_name_df("complete_catalogue"))
+            self.old_ctime = self.get_ctime_list()
 
-                self.old_ctime = self.get_ctime_list()
-
-                for _ in tqdm(range(60)):
-                    time.sleep(1)
+    def get_current_worlds(self):
+        lst = glob.glob(self.saves_file_path + "/*")
+        cut = [world_path.split("/")[-1] for world_path in lst]
+        return cut
 
     def get_current_advancements_file_path(self):
         """
@@ -87,7 +88,6 @@ class Tracker:
         """
         lst = glob.glob(self.saves_file_path + "/*")
         world_path = max(lst, key=os.path.getctime)
-        self.world_name = world_path.split("/")[-1]
         return world_path + "/advancements"
 
     def get_advancements_files(self):

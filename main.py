@@ -1,20 +1,17 @@
 import json
 import os
+import logging
 import multiprocessing
-from Scripts.Tracker import Tracker
+from Scripts.Gui import Gui
 
 
 if __name__ == '__main__':
     os.chdir("/Users/willmcglaughlin/PycharmProjects/AllAdvancementsTracker")
 
-    multiprocessing.freeze_support()
+    logging.basicConfig(level=logging.INFO,
+                        format='[%(name)s] %(levelname)s - %(message)s')
 
-    with open("./Information/config.json", "r") as config_file:
-        config = json.load(config_file)
-
-    saves_file_path = config["saves"]
-
-    tracker = Tracker(saves_file_path)
-    tracker.start()
+    gui = Gui(500, 300)
+    gui.show()
 
 
