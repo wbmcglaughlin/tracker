@@ -65,7 +65,7 @@ class Tracker:
             self.sheet.update_worksheet("Sheet1", adv_df)
 
             if self.old_ctime == self.get_ctime_list():
-                for _ in tqdm(range(20)):
+                for _ in tqdm(range(20), desc="Waiting For Change"):
                     time.sleep(1)
             else:
                 self.sheet.update_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"))
