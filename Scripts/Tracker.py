@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 import pandas
-
+from tkinter import *
 from Scripts.Export import export_advancements_to_csv
 from Scripts.Sheet import Sheet
 from enum import IntEnum
@@ -65,7 +65,7 @@ class Tracker:
             self.sheet.update_worksheet("Sheet1", adv_df)
 
             if self.old_ctime == self.get_ctime_list():
-                for _ in tqdm(range(5)):
+                for _ in tqdm(range(20)):
                     time.sleep(1)
             else:
                 self.sheet.update_worksheet("Explore Nether", self.get_progress_advancement_by_name_df("explore_nether"))

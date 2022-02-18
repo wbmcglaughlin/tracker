@@ -44,10 +44,10 @@ class Sheet:
         """
 
         # Checks if sheet already exists
-        if self.client.open(self.name):
+        try:
             ss = self.client.open(self.name)
         # If not, create the sheet
-        else:
+        except gspread.exceptions.SpreadsheetNotFound:
             ss = self.client.create(self.name)
 
         # Tries to invite emails from config.json to google sheet
@@ -55,10 +55,11 @@ class Sheet:
             with open("./Information/config.json", "r") as file:
                 config = json.load(file)
                 for user in config["users_email"]:
-                    ss.share(user, perm_type='user',
-                             role='writer')
+                    if user not in ss.list_permissions():
+                        ss.share(user, perm_type='user',
+                                 role='writer')
         # Request can be exceeded
-        except Exception as e:
+        except gspread.exceptions.APIError as e:
             self.Logging.debug("Share Requests Exceeded")
 
         # Populate First Tab
